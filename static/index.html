@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Italian Conjugation Trainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #sentence, #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        input[type="text"] {
+            font-size: 16px;
+            padding: 5px;
+        }
+        button {
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Italian Conjugation Trainer</h1>
+    <div>
+        <label for="verbs">Verbs (comma-separated):</label>
+        <input type="text" id="verbs" placeholder="avere, mangiare">
+    </div>
+    <div>
+        <label for="tenses">Tenses (comma-separated):</label>
+        <input type="text" id="tenses" placeholder="presente, futuro">
+    </div>
+    <button onclick="generateSentence()">Generate Sentence</button>
+    <div id="sentence"></div>
+    <div>
+        <input type="text" id="answer" placeholder="Your answer">
+        <button onclick="checkAnswer()">Check Answer</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        async function generateSentence() {
+            const verbs = document.getElementById('verbs').value;
+            const tenses = document.getElementById('tenses').value;
+
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ verbs, tenses }),
+            });
+
+            const data = await response.json();
+            document.getElementById('sentence').textContent = data.sentence;
+            
+            // Clear the previous result and answer
+            document.getElementById('result').textContent = '';
+            document.getElementById('answer').value = '';
+        }
+
+        async function checkAnswer() {
+            const sentence = document.getElementById('sentence').textContent;
+            const answer = document.getElementById('answer').value;
+
+            const response = await fetch('/check', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sentence, answer }),
+            });
+
+            const data = await response.json();
+            document.getElementById('result').textContent = data.result;
+        }
+    </script>
+</body>
+</html>
