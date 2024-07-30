@@ -42,6 +42,10 @@
         <button onclick="checkAnswer()">Check Answer</button>
     </div>
     <div id="result"></div>
+    <div>
+        <button id="playAudio" style="display: none;" onclick="playAudio()">Play Audio</button>
+        <audio id="audio" controls style="display: none;"></audio>
+    </div>
 
     <script>
         async function generateSentence() {
@@ -62,6 +66,12 @@
             // Clear the previous result and answer
             document.getElementById('result').textContent = '';
             document.getElementById('answer').value = '';
+
+            // Update audio source and show play button
+            const audioElement = document.getElementById('audio');
+            audioElement.src = data.audio_file;
+            audioElement.style.display = 'block';
+            document.getElementById('playAudio').style.display = 'none';
         }
 
         async function checkAnswer() {
@@ -78,6 +88,11 @@
 
             const data = await response.json();
             document.getElementById('result').textContent = data.result;
+        }
+
+        function playAudio() {
+            const audioElement = document.getElementById('audio');
+            audioElement.play();
         }
     </script>
 </body>

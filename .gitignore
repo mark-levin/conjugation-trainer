@@ -1,3 +1,5 @@
 .env
 script.py
 README_draft.md
+.DS_Store
+static/.DS_Store

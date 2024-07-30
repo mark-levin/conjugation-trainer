@@ -12,13 +12,9 @@ This web application helps users practice Italian verb conjugations. It generate
 
 - Backend: Python with Flask
 - Frontend: HTML, CSS, JavaScript
-- API: OpenAI GPT-4o-mini for sentence generation and answer checking
+- API: OpenAI GPT-4o-mini for sentence generation and answer checking, tts-1 for audio
 
 ## Project Structure
 
 - `app.py`: The main Python script containing the Flask application and OpenAI API calls.
 - `static/index.html`: The HTML file for the web interface.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
