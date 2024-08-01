@@ -20,6 +20,7 @@ def generate_sentence():
     data = request.json
     verbs = [x.strip() for x in data['verbs'].split(',')]
     tenses = [x.strip() for x in data['tenses'].split(',')]
+    audio_enabled = data.get('audioEnabled', False)
     people = ['first', 'second', 'third']
     numbers = ['singular', 'plural']
 
@@ -55,8 +56,10 @@ def generate_sentence():
 
     sentence = completion1.choices[0].message.content
     
-    # Generate the voice file
-    audio_file = voice_sentence(sentence)
+    audio_file = None
+    if audio_enabled:
+        # Generate the voice file
+        audio_file = voice_sentence(sentence)
     
     return jsonify({"sentence": sentence, "audio_file": audio_file})
 
@@ -101,7 +104,7 @@ def voice_sentence(sentence):
 
     response = client.audio.speech.create(
         model="tts-1",
-        voice="alloy",
+        voice="onyx",
         input=prompt
     )
 
