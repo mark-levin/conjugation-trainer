@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from openai import OpenAI
+from mlconjug3 import Conjugator
 import os
 import random
 import re
@@ -19,7 +20,7 @@ def home():
 def generate_sentence():
     data = request.json
     verbs = [x.strip() for x in data['verbs'].split(',')]
-    tenses = [x.strip() for x in data['tenses'].split(',')]
+    tenses = data['tenses']
     audio_enabled = data.get('audioEnabled', False)
     people = ['first', 'second', 'third']
     numbers = ['singular', 'plural']
@@ -61,35 +62,41 @@ def generate_sentence():
         # Generate the voice file
         audio_file = voice_sentence(sentence)
     
-    return jsonify({"sentence": sentence, "audio_file": audio_file})
+    return jsonify({"sentence": sentence, "audio_file": audio_file, "selection": selection})
 
 @app.route('/check', methods=['POST'])
 def check_answer():
     data = request.json
-    sentence = data['sentence']
+    selection = data['selection']
     answer = data['answer']
 
-    completion2 = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": """You are used as a conjugation trainer for the Italian language. 
-             You are given a sentence with a masked verb conjugation and an infinitive of the verb and a required tense in brackets before the mask.
-             You are also given an answer to the mask by a student.
-             Your task is to check whether the answer is correct or wrong.
-             You should only output 'Correct' or 'Incorrect'. Don't output anything else.
-             
-             Examples:
-             Q: Marco and Paolo (volere, passato remoto) _____ andare in vacanza l'estate scorsa. - vollero
-             A: Correct
-             
-             Q: Domani, (noi) (venire, futuro) tutti alla festa per celebrare il tuo compleanno. - verranno
-             A: Incorrect
-             """},
-            {"role": "user", "content": f"{sentence} - {answer}"}
-        ]
-    )
+    if selection['person'] == 'first' and selection['number'] == 'singular':
+        pronoun = ('io','1s')
+    elif selection['person'] == 'second' and selection['number'] == 'singular':
+        pronoun = ('tu','2s')
+    elif selection['person'] == 'third' and selection['number'] == 'singular':
+        pronoun = ('egli/ella', '3s')
+    elif selection['person'] == 'first' and selection['number'] == 'plural':
+        pronoun = ('noi', '1p')
+    elif selection['person'] == 'second' and selection['number'] == 'plural':
+        pronoun = ('voi', '2p')
+    elif selection['person'] == 'third' and selection['number'] == 'plural':
+        pronoun = ('essi/esse', '3p')
 
-    result = completion2.choices[0].message.content
+    conjugator = Conjugator(language='it')
+    verb = conjugator.conjugate(selection['verb'])
+    mood = selection['tense'].split()[0]
+
+    if mood == 'Imperativo':
+        correct_answer = verb[mood][selection['tense']][pronoun[1]]
+    else:
+        correct_answer = verb[mood][selection['tense']][pronoun[0]]
+
+    if answer == correct_answer:
+        result = 'Correct'
+    else:
+        result = 'Incorrect'
+
     return jsonify({"result": result})
 
 @app.route('/voice', methods=['POST'])

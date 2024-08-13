@@ -12,7 +12,7 @@ This web application helps users practice Italian verb conjugations. It generate
 
 - Backend: Python with Flask
 - Frontend: HTML, CSS, JavaScript
-- API: OpenAI GPT-4o-mini for sentence generation and answer checking, tts-1 for audio
+- API: OpenAI GPT-4o-mini for sentence generation, tts-1 for audio
 
 ## Project Structure
 

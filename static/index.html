@@ -24,6 +24,29 @@
             padding: 5px 10px;
             margin-right: 10px;
         }
+        .tense-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .mood-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        .mood {
+            background-color: #f0f0f0;
+            padding: 5px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .tenses {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
@@ -32,9 +55,40 @@
         <label for="verbs">Verbs (comma-separated):</label>
         <input type="text" id="verbs" placeholder="avere, mangiare">
     </div>
-    <div>
-        <label for="tenses">Tenses (comma-separated):</label>
-        <input type="text" id="tenses" placeholder="presente, futuro">
+    <div class="tense-selector">
+        <div class="mood-column">
+            <div class="mood">Indicativo</div>
+            <div class="tenses">
+                <label><input type="checkbox" name="tense" value="Indicativo presente"> presente</label>
+                <label><input type="checkbox" name="tense" value="Indicativo imperfetto"> imperfetto</label>
+                <label><input type="checkbox" name="tense" value="Indicativo passato remoto"> passato remoto</label>
+                <label><input type="checkbox" name="tense" value="Indicativo futuro semplice"> futuro semplice</label>
+                <label><input type="checkbox" name="tense" value="Indicativo passato prossimo"> passato prossimo</label>
+                <label><input type="checkbox" name="tense" value="Indicativo trapassato prossimo"> trapassato prossimo</label>
+                <label><input type="checkbox" name="tense" value="Indicativo trapassato remoto"> trapassato remoto</label>
+                <label><input type="checkbox" name="tense" value="Indicativo futuro anteriore"> futuro anteriore</label>
+            </div>
+        </div>
+        <div class="mood-column">
+            <div class="mood">Congiuntivo</div>
+            <div class="tenses">
+                <label><input type="checkbox" name="tense" value="Congiuntivo presente"> presente</label>
+                <label><input type="checkbox" name="tense" value="Congiuntivo imperfetto"> imperfetto</label>
+                <label><input type="checkbox" name="tense" value="Congiuntivo passato"> passato</label>
+                <label><input type="checkbox" name="tense" value="Congiuntivo trapassato"> trapassato</label>
+            </div>
+        </div>
+        <div class="mood-column">
+            <div class="mood">Condizionale</div>
+            <div class="tenses">
+                <label><input type="checkbox" name="tense" value="Condizionale presente"> presente</label>
+                <label><input type="checkbox" name="tense" value="Condizionale passato"> passato</label>
+            </div>
+            <div class="mood">Imperativo</div>
+            <div class="tenses">
+                <label><input type="checkbox" name="tense" value="imperativo"> imperativo</label>
+            </div>
+        </div>
     </div>
     <button onclick="generateSentence()">Generate Sentence</button>
     <button id="audioToggle" onclick="toggleAudio()">Audio: Off</button>
@@ -49,10 +103,12 @@
     </div>
     <script>
         let audioEnabled = false;
-
+        let currentSelection;
+        
         async function generateSentence() {
             const verbs = document.getElementById('verbs').value;
-            const tenses = document.getElementById('tenses').value;
+            const tenses = Array.from(document.querySelectorAll('input[name="tense"]:checked'))
+                    .map(checkbox => checkbox.value);
             const response = await fetch('/generate', {
                 method: 'POST',
                 headers: {
@@ -62,6 +118,7 @@
             });
             const data = await response.json();
             document.getElementById('sentence').textContent = data.sentence;
+            currentSelection = data.selection;
             
             // Clear the previous result and answer
             document.getElementById('result').textContent = '';
@@ -87,7 +144,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ sentence, answer }),
+                body: JSON.stringify({ sentence, answer, selection: currentSelection }),
             });
             const data = await response.json();
             document.getElementById('result').textContent = data.result;
