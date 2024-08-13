@@ -70,32 +70,25 @@ def check_answer():
     selection = data['selection']
     answer = data['answer']
 
-    if selection['person'] == 'first' and selection['number'] == 'singular':
-        pronoun = ('io','1s')
-    elif selection['person'] == 'second' and selection['number'] == 'singular':
-        pronoun = ('tu','2s')
-    elif selection['person'] == 'third' and selection['number'] == 'singular':
-        pronoun = ('egli/ella', '3s')
-    elif selection['person'] == 'first' and selection['number'] == 'plural':
-        pronoun = ('noi', '1p')
-    elif selection['person'] == 'second' and selection['number'] == 'plural':
-        pronoun = ('voi', '2p')
-    elif selection['person'] == 'third' and selection['number'] == 'plural':
-        pronoun = ('essi/esse', '3p')
+    pronoun_map = {
+        ('first', 'singular'): ('io', '1s'),
+        ('second', 'singular'): ('tu', '2s'),
+        ('third', 'singular'): ('egli/ella', '3s'),
+        ('first', 'plural'): ('noi', '1p'),
+        ('second', 'plural'): ('voi', '2p'),
+        ('third', 'plural'): ('essi/esse', '3p'),
+    }
+
+    pronoun = pronoun_map.get((selection['person'], selection['number']))
 
     conjugator = Conjugator(language='it')
     verb = conjugator.conjugate(selection['verb'])
     mood = selection['tense'].split()[0]
 
-    if mood == 'Imperativo':
-        correct_answer = verb[mood][selection['tense']][pronoun[1]]
-    else:
-        correct_answer = verb[mood][selection['tense']][pronoun[0]]
+    is_imperativo = 1 if mood == 'Imperativo' else 0
+    correct_answer = verb[mood][selection['tense']][pronoun[is_imperativo]]
 
-    if answer == correct_answer:
-        result = 'Correct'
-    else:
-        result = 'Incorrect'
+    result = 'Correct' if answer == correct_answer else 'Incorrect'
 
     return jsonify({"result": result})
 
